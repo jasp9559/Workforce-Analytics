@@ -67,8 +67,92 @@ attrition
 attrition = attrition.drop(["Date_of_Hire", "Date_of_termination"], axis = 1)
 attrition
 
+# Lets check out some visualisation to get the insights on the data
+df_company = attrition
+
+import seaborn as sns 
+import matplotlib.pyplot as plt
+def stacked_plot(df, group, target):
+    """
+    Function to generate a stacked plots between two variables
+    """
+    fig, ax = plt.subplots(figsize = (6,4))
+    temp_df = (df.groupby([group, target]).size()/df.groupby(group)[target].count()).reset_index().pivot(columns=target, index=group, values=0)
+    temp_df.plot(kind = 'bar', stacked = True, ax = ax, color = ["green", "darkred"])
+    ax.xaxis.set_tick_params(rotation = 0)
+    ax.set_xlabel(group)
+    ax.set_ylabel('Attrition')
+
+def Age(a):
+    if a <= 25:
+        return 1
+    elif a > 25 and a <= 32:
+        return 2
+    elif a > 32 and a <= 40:
+        return 3
+    elif a > 40 and a <= 50:
+        return 4
+    else:
+        return 5
+
+df_company["Age_group"] = df_company["Age"].apply(lambda x: Age(x))
+df_company["Age_group"].value_counts()
+sns.countplot(x = "Age_group", hue = "Attrition", data = df_company)
+
+''' 
+Having a look at the plot which gives the relation between attrition and age group gives the insight that
+the employees in the age group of under 25 tend to move faster and the ones within 25 and 32 also.
 '''
-The data seems to be normal and has values that are not irrelevant
+
+def DistanceFromHome(d):
+    if d <= 5:
+        return 1
+    elif d > 5 and d <= 10:
+        return 2
+    elif d > 10 and d <= 15:
+        return 3
+    elif d > 15 and d <= 20:
+        return 4
+    elif d > 20 and d <= 25:
+        return 5
+    else:
+        return 6
+    
+df_company["DistanceFromHome_group"]=df_company["DistanceFromHome"].apply(lambda x: DistanceFromHome(x))
+df_company["DistanceFromHome_group"].value_counts()
+sns.countplot(x="DistanceFromHome_group", hue="Attrition", data=df_company)
+
+''' 
+Now taking the relation between attrition and Distance from home gives the insight that 
+the employees with a farther distance from home tend to take a decision to attrite quite obviously.
+'''
+
+def YearsAtCompany(t):
+    if t <= 1:
+        return 1
+    elif t > 1 and t <= 5:
+        return 2
+    elif t > 5 and t <= 10:
+        return 3
+    elif t > 10 and t <= 20:
+        return 4
+    elif t > 20 and t <= 30:
+        return 5
+    else:
+        return 6
+
+df_company["YearsAtCompany"] = df_company["YearsAtCompany"].apply(lambda x:YearsAtCompany(x))
+df_company["YearsAtCompany"].value_counts()
+sns.countplot(x = "YearsAtCompany", hue = "Attrition", data = df_company)
+
+''' 
+Now this interesting fact is very well known that the one year atrrition employees are 
+known as Jumpers but this does go against their profile, and then the most attritions 
+take place in the range of 1 to 5 years of employment.
+'''
+
+
+'''
 Additionally we have to now normalize the data as the scale is not the same
  for all the variables. We will use minmax scaler for the job
 
@@ -98,74 +182,12 @@ EDA = {"column": attrition_mms.columns,
 
 print(EDA)
 
-# Lets check out some visualisation to get the insights on the data
+''' 
+Now we try and visualise the factors that effect the attrtion most using the stacked plots as under.
+Not only does it give a better understanding but the visuals help select the features better.
+'''
+
 df_company = attrition_mms 
-
-import seaborn as sns 
-import matplotlib.pyplot as plt
-def stacked_plot(df, group, target):
-    """
-    Function to generate a stacked plots between two variables
-    """
-    fig, ax = plt.subplots(figsize = (6,4))
-    temp_df = (df.groupby([group, target]).size()/df.groupby(group)[target].count()).reset_index().pivot(columns=target, index=group, values=0)
-    temp_df.plot(kind = 'bar', stacked = True, ax = ax, color = ["green", "darkred"])
-    ax.xaxis.set_tick_params(rotation=0)
-    ax.set_xlabel(group)
-    ax.set_ylabel('Attrition')
-
-def Age(a):
-    if a <= 25:
-        return 1
-    elif a > 25 and a <= 32:
-        return 2
-    elif a > 32 and a <= 40:
-        return 3
-    elif a > 40 and a <= 50:
-        return 4
-    else:
-        return 5
-
-df_company["Age_group"] = df_company["Age"].apply(lambda x: Age(x))
-df_company["Age_group"].value_counts()
-sns.countplot(x = "Age_group", hue = "Attrition", data = df_company)
-
-def DistanceFromHome(d):
-    if d <= 5:
-        return 1
-    elif d > 5 and d <= 10:
-        return 2
-    elif d > 10 and d <= 15:
-        return 3
-    elif d > 15 and d <= 20:
-        return 4
-    elif d > 20 and d <= 25:
-        return 5
-    else:
-        return 6
-    
-df_company["DistanceFromHome_group"]=df_company["DistanceFromHome"].apply(lambda x: DistanceFromHome(x))
-df_company["DistanceFromHome_group"].value_counts()
-sns.countplot(x="DistanceFromHome_group", hue="Attrition", data=df_company)
-
-def YearsAtCompany(t):
-    if t <= 1:
-        return 1
-    elif t > 1 and t <= 5:
-        return 2
-    elif t > 5 and t <= 10:
-        return 3
-    elif t > 10 and t <= 20:
-        return 4
-    elif t > 20 and t <= 30:
-        return 5
-    else:
-        return 6
-
-df_company["YearsAtCompany"] = df_company["YearsAtCompany"].apply(lambda x:YearsAtCompany(x))
-df_company["YearsAtCompany"].value_counts()
-sns.countplot(x = "YearsAtCompany", hue = "Attrition", data = df_company)
-
 
 stacked_plot(df_company, "Gender", "Attrition")
 stacked_plot(df_company, "MaritalStatus", "Attrition")
@@ -191,12 +213,13 @@ stacked_plot(df_company, "Source_of_Hire", "Attrition")
 stacked_plot(df_company, "Job_mode", "Attrition")
 
 
-# we plot the heat map to see the various relationships
+# We plot the heat map to see the various relationships under correlation using the heatmap
 
 plt.figure(figsize = (10,8))
 sns.heatmap(df_company.corr(), annot = False, cmap = 'coolwarm')
 plt.show()
 
+# Checking the correlation coeficients and importance ordered
 corr_attr = df_company.corr()
 (corr_attr['Attrition'].sort_values(ascending = False))
 
@@ -204,7 +227,7 @@ col = df_company.corr().nlargest(20, "Attrition").Attrition.index
 plt.figure(figsize=(15, 15))
 sns.heatmap(df_company[col].corr(), annot = True, cmap = "RdYlGn", annot_kws = {"size":10})
 
-# Let us try and calculate chi-values 
+# Let us additionally reinforce the feature selection by trying to calculate chi-values
 from sklearn.feature_selection import chi2
 X = df_company.drop('Attrition', axis = 1)
 y = df_company['Attrition']
@@ -216,7 +239,6 @@ chi_scores
 p_values = pd.Series(chi_scores[1], index = X.columns)
 p_values.sort_values(ascending = False, inplace = True)
 p_values.plot.bar()
-
 
 
 
