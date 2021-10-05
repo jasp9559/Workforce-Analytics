@@ -181,27 +181,41 @@ stacked_plot(df_company, "PercentSalaryHike", "Attrition")
 stacked_plot(df_company, "PerformanceRating", "Attrition")
 stacked_plot(df_company, "StockOptionLevel", "Attrition")
 stacked_plot(df_company, "TrainingTimesLastYear", "Attrition")
-stacked_plot(df_company, "Higher Education", "Attrition")
-stacked_plot(df_company, "Status of leaving", "Attrition")
-stacked_plot(df_company, "mode of work", "Attrition")
+stacked_plot(df_company, "Higher_Education", "Attrition")
+stacked_plot(df_company, "Status_of_leaving", "Attrition")
+stacked_plot(df_company, "Mode_of_work", "Attrition")
 stacked_plot(df_company, "leaves", "Attrition")
 stacked_plot(df_company, "absenteeism", "Attrition")
 stacked_plot(df_company, "Work_accident", "Attrition")
-stacked_plot(df_company, "Source of Hire", "Attrition")
-stacked_plot(df_company, "Job mode", "Attrition")
+stacked_plot(df_company, "Source_of_Hire", "Attrition")
+stacked_plot(df_company, "Job_mode", "Attrition")
 
 
+# we plot the heat map to see the various relationships
 
+plt.figure(figsize = (10,8))
+sns.heatmap(df_company.corr(), annot = False, cmap = 'coolwarm')
+plt.show()
 
+corr_attr = df_company.corr()
+(corr_attr['Attrition'].sort_values(ascending = False))
 
+col = df_company.corr().nlargest(20, "Attrition").Attrition.index
+plt.figure(figsize=(15, 15))
+sns.heatmap(df_company[col].corr(), annot = True, cmap = "RdYlGn", annot_kws = {"size":10})
 
+# Let us try and calculate chi-values 
+from sklearn.feature_selection import chi2
+X = df_company.drop('Attrition', axis = 1)
+y = df_company['Attrition']
+chi_scores = chi2(X, y)
+chi_scores
 
-
-
-
-
-
-
+# Here first array represents chi square values and second array represents p-values
+# and plotting the values as per their values will show the importance or impact on the attrition
+p_values = pd.Series(chi_scores[1], index = X.columns)
+p_values.sort_values(ascending = False, inplace = True)
+p_values.plot.bar()
 
 
 
