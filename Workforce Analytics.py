@@ -54,8 +54,6 @@ attrition.describe()
 # Checking whether the datset has any missing values within
 attrition.isna().sum() 
 
-
-
 # Category columns in the data
 category_cols = ['Attrition', 'BusinessTravel', 'Department', 'Gender', 'JobRole', 'MaritalStatus', 'OverTime', 'Higher_Education', 'Status_of_leaving', 'Mode_of_work', 'Work_accident', 'Source_of_Hire', 'Job_mode']
 from sklearn.preprocessing import LabelEncoder
@@ -237,8 +235,116 @@ chi_scores
 # Here first array represents chi square values and second array represents p-values
 # and plotting the values as per their values will show the importance or impact on the attrition
 p_values = pd.Series(chi_scores[1], index = X.columns)
-p_values.sort_values(ascending = False, inplace = True)
+p_values.sort_values(ascending = True, inplace = True)
 p_values.plot.bar()
+
+'''
+Now off the plot bar which gives the impactful features stacked together ordered by their importance as under
+We select the ones which create a significant impact on Attrition
+'''
+
+'''
+We use now various features that are impactful on the attrition and 
+try to check the survival analysis over them to determine the duration
+'''
+
+import lifelines
+
+# Taking "YearsAtCompany" to be time spell
+T = df_company.YearsAtCompany 
+
+# Importing the KaplanMeierFitter model to fit the survival analysis
+from lifelines import KaplanMeierFitter
+
+# Initiating the KaplanMeierFitter model
+kmf = KaplanMeierFitter()
+
+# Fitting KaplanMeierFitter model on Time and Events for Attrition
+kmf.fit(T, event_observed = df_company.Attrition)
+
+# Time-line estimations plot 
+kmf.plot()
+
+# Over Multiple groups with the event being "Attrition"
+''' We first select the group to be OverTime'''
+df_company.OverTime.value_counts()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "1"
+kmf.fit(T[df_company.OverTime == 1], df_company.Attrition[df_company.OverTime == 1], label = '1')
+ax = kmf.plot()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0"
+kmf.fit(T[df_company.OverTime == 0], df_company.Attrition[df_company.OverTime == 0], label = '0')
+kmf.plot(ax=ax)
+
+
+''' We now select the group to be BusinessTravel'''
+df_company.BusinessTravel.value_counts()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "1"
+kmf.fit(T[df_company.BusinessTravel == 1], df_company.Attrition[df_company.BusinessTravel == 1], label = '1')
+ax = kmf.plot()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0.5"
+kmf.fit(T[df_company.BusinessTravel == 0.5], df_company.Attrition[df_company.BusinessTravel == 0.5], label = '0.5')
+kmf.plot(ax=ax)
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0"
+kmf.fit(T[df_company.BusinessTravel == 0], df_company.Attrition[df_company.BusinessTravel == 0], label = '0')
+kmf.plot(ax=ax)
+
+
+''' We now select the group to be JobLevel'''
+df_company.JobLevel.value_counts()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "1"
+kmf.fit(T[df_company.JobLevel == 1], df_company.Attrition[df_company.JobLevel == 1], label = '1')
+ax = kmf.plot()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0.75"
+kmf.fit(T[df_company.JobLevel == 0.75], df_company.Attrition[df_company.JobLevel == 0.75], label = '0.75')
+kmf.plot(ax=ax)
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0.50"
+kmf.fit(T[df_company.JobLevel == 0.50], df_company.Attrition[df_company.JobLevel == 0.50], label = '0.50')
+kmf.plot(ax=ax)
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0.25"
+kmf.fit(T[df_company.JobLevel == 0.25], df_company.Attrition[df_company.JobLevel == 0.25], label = '0.25')
+kmf.plot(ax=ax)
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0"
+kmf.fit(T[df_company.JobLevel == 0], df_company.Attrition[df_company.JobLevel == 0], label = '0')
+kmf.plot(ax=ax)
+
+
+''' We now select the group to be Age_group'''
+df_company.Age_group.value_counts()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "1"
+kmf.fit(T[df_company.Age_group == 1], df_company.Attrition[df_company.Age_group == 1], label = '1')
+ax = kmf.plot()
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0.75"
+kmf.fit(T[df_company.Age_group == 0.75], df_company.Attrition[df_company.Age_group == 0.75], label = '0.75')
+kmf.plot(ax=ax)
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0.50"
+kmf.fit(T[df_company.Age_group == 0.50], df_company.Attrition[df_company.Age_group == 0.50], label = '0.50')
+kmf.plot(ax=ax)
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0.25"
+kmf.fit(T[df_company.Age_group == 0.25], df_company.Attrition[df_company.Age_group == 0.25], label = '0.25')
+kmf.plot(ax=ax)
+
+# Applying KaplanMeierFitter model on Time and Events for the group "0"
+kmf.fit(T[df_company.Age_group == 0], df_company.Attrition[df_company.Age_group == 0], label = '0')
+kmf.plot(ax=ax)
+
+
+
+
+
 
 
 
