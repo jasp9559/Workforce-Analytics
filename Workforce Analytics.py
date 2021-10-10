@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 
-attrition = pd.read_excel("C:/Data Science/Data Science/HR Workforce Analytics Project/Final dataset Attrition.xlsx")
+attrition = pd.read_excel("C:/Data Science/My work/HR Workforce Analytics Project/Final dataset Attrition.xlsx")
 attrition.head(10)
 attrition.columns
 attrition.shape 
@@ -116,9 +116,9 @@ def DistanceFromHome(d):
     else:
         return 6
     
-df_company["DistanceFromHome_group"]=df_company["DistanceFromHome"].apply(lambda x: DistanceFromHome(x))
+df_company["DistanceFromHome_group"] = df_company["DistanceFromHome"].apply(lambda x: DistanceFromHome(x))
 df_company["DistanceFromHome_group"].value_counts()
-sns.countplot(x="DistanceFromHome_group", hue="Attrition", data=df_company)
+sns.countplot(x = "DistanceFromHome_group", hue="Attrition", data = df_company)
 
 ''' 
 Now taking the relation between attrition and Distance from home gives the insight that 
@@ -210,7 +210,7 @@ stacked_plot(df_company, "Work_accident", "Attrition")
 stacked_plot(df_company, "Source_of_Hire", "Attrition")
 stacked_plot(df_company, "Job_mode", "Attrition")
 
-
+##############################################
 # We plot the heat map to see the various relationships under correlation using the heatmap
 
 plt.figure(figsize = (10,8))
@@ -225,6 +225,7 @@ col = df_company.corr().nlargest(20, "Attrition").Attrition.index
 plt.figure(figsize=(15, 15))
 sns.heatmap(df_company[col].corr(), annot = True, cmap = "RdYlGn", annot_kws = {"size":10})
 
+##############################################
 # Let us additionally reinforce the feature selection by trying to calculate chi-values
 from sklearn.feature_selection import chi2
 X = df_company.drop('Attrition', axis = 1)
@@ -243,6 +244,8 @@ Now off the plot bar which gives the impactful features stacked together ordered
 We select the ones which create a significant impact on Attrition
 '''
 
+
+##############################################
 '''
 We use now various features that are impactful on the attrition and 
 try to check the survival analysis over them to determine the duration
@@ -250,100 +253,115 @@ try to check the survival analysis over them to determine the duration
 
 import lifelines
 
+df = pd.read_excel("C:/Data Science/My work/HR Workforce Analytics Project/Final dataset Attrition.xlsx")
+
 # Taking "YearsAtCompany" to be time spell
-T = df_company.YearsAtCompany 
+T = df.YearsAtCompany 
 
 # Importing the KaplanMeierFitter model to fit the survival analysis
 from lifelines import KaplanMeierFitter
-
 # Initiating the KaplanMeierFitter model
 kmf = KaplanMeierFitter()
-
 # Fitting KaplanMeierFitter model on Time and Events for Attrition
-kmf.fit(T, event_observed = df_company.Attrition)
-
+kmf.fit(durations = T, event_observed = df_company.Attrition)
 # Time-line estimations plot 
-kmf.plot()
+kmf.survival_function_.plot()
+plt.title('Survival curve wrt the Attrition as event and YearsAtCompany as spell')
+plt.show()
 
-# Over Multiple groups with the event being "Attrition"
+# Print survival probabilities at each year
+kmf.survival_function_
+
+# Plot the survival function with confidence intervals
+kmf.plot_survival_function()
+plt.show()
+
+##############################################
+# We try over Multiple groups with the event being "Attrition"
 ''' We first select the group to be OverTime'''
 df_company.OverTime.value_counts()
 
+OT_worked = df_company.OverTime == 1
+OT_Not = df_company.OverTime == 0
 # Applying KaplanMeierFitter model on Time and Events for the group "1"
-kmf.fit(T[df_company.OverTime == 1], df_company.Attrition[df_company.OverTime == 1], label = '1')
-ax = kmf.plot()
+kmf.fit(T[df_company.OverTime == 1], df_company.Attrition[df_company.OverTime == 1], label = 'OT_worked')
+ax = kmf.survival_function_.plot()
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0"
-kmf.fit(T[df_company.OverTime == 0], df_company.Attrition[df_company.OverTime == 0], label = '0')
-kmf.plot(ax=ax)
+kmf.fit(T[df_company.OverTime == 0], df_company.Attrition[df_company.OverTime == 0], label = 'OT_Not')
+kmf.survival_function_.plot(ax=ax)
+plt.title('Survival plot for "Attrition" w.r.t "OverTime"')
 
-
+##############################################
 ''' We now select the group to be BusinessTravel'''
 df_company.BusinessTravel.value_counts()
 
+Frequent = df_company.BusinessTravel == 1.00
+Rare = df_company.BusinessTravel == 0.50
+Non = df_company.BusinessTravel == 0.00
 # Applying KaplanMeierFitter model on Time and Events for the group "1"
-kmf.fit(T[df_company.BusinessTravel == 1], df_company.Attrition[df_company.BusinessTravel == 1], label = '1')
-ax = kmf.plot()
+kmf.fit(T[df_company.BusinessTravel == 1], df_company.Attrition[df_company.BusinessTravel == 1], label = 'Frequent')
+ax = kmf.survival_function_.plot()
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0.5"
-kmf.fit(T[df_company.BusinessTravel == 0.5], df_company.Attrition[df_company.BusinessTravel == 0.5], label = '0.5')
-kmf.plot(ax=ax)
+kmf.fit(T[df_company.BusinessTravel == 0.5], df_company.Attrition[df_company.BusinessTravel == 0.5], label = 'Rare')
+kmf.survival_function_.plot(ax=ax)
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0"
-kmf.fit(T[df_company.BusinessTravel == 0], df_company.Attrition[df_company.BusinessTravel == 0], label = '0')
-kmf.plot(ax=ax)
+kmf.fit(T[df_company.BusinessTravel == 0], df_company.Attrition[df_company.BusinessTravel == 0], label = 'Non')
+kmf.survival_function_.plot(ax=ax)
+plt.title('Survival plot for "Attrition" w.r.t "BusinessTravel"')
 
-
+##############################################
 ''' We now select the group to be JobLevel'''
 df_company.JobLevel.value_counts()
 
+
 # Applying KaplanMeierFitter model on Time and Events for the group "1"
-kmf.fit(T[df_company.JobLevel == 1], df_company.Attrition[df_company.JobLevel == 1], label = '1')
-ax = kmf.plot()
+kmf.fit(T[df_company.JobLevel == 1], df_company.Attrition[df_company.JobLevel == 1], label = '5')
+ax = kmf.survival_function_.plot()
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0.75"
-kmf.fit(T[df_company.JobLevel == 0.75], df_company.Attrition[df_company.JobLevel == 0.75], label = '0.75')
-kmf.plot(ax=ax)
+kmf.fit(T[df_company.JobLevel == 0.75], df_company.Attrition[df_company.JobLevel == 0.75], label = '4')
+kmf.survival_function_.plot(ax=ax)
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0.50"
-kmf.fit(T[df_company.JobLevel == 0.50], df_company.Attrition[df_company.JobLevel == 0.50], label = '0.50')
-kmf.plot(ax=ax)
+kmf.fit(T[df_company.JobLevel == 0.50], df_company.Attrition[df_company.JobLevel == 0.50], label = '3')
+kmf.survival_function_.plot(ax=ax)
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0.25"
-kmf.fit(T[df_company.JobLevel == 0.25], df_company.Attrition[df_company.JobLevel == 0.25], label = '0.25')
-kmf.plot(ax=ax)
+kmf.fit(T[df_company.JobLevel == 0.25], df_company.Attrition[df_company.JobLevel == 0.25], label = '2')
+kmf.survival_function_.plot(ax=ax)
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0"
-kmf.fit(T[df_company.JobLevel == 0], df_company.Attrition[df_company.JobLevel == 0], label = '0')
-kmf.plot(ax=ax)
+kmf.fit(T[df_company.JobLevel == 0], df_company.Attrition[df_company.JobLevel == 0], label = '1')
+kmf.survival_function_.plot(ax=ax)
+plt.title('Survival plot for "Attrition" w.r.t "JobLevel"')
 
-
+##############################################
 ''' We now select the group to be Age_group'''
 df_company.Age_group.value_counts()
 
 # Applying KaplanMeierFitter model on Time and Events for the group "1"
 kmf.fit(T[df_company.Age_group == 1], df_company.Attrition[df_company.Age_group == 1], label = '1')
-ax = kmf.plot()
+ax = kmf.survival_function_.plot() 
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0.75"
 kmf.fit(T[df_company.Age_group == 0.75], df_company.Attrition[df_company.Age_group == 0.75], label = '0.75')
-kmf.plot(ax=ax)
+kmf.survival_function_.plot(ax=ax) 
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0.50"
 kmf.fit(T[df_company.Age_group == 0.50], df_company.Attrition[df_company.Age_group == 0.50], label = '0.50')
-kmf.plot(ax=ax)
+kmf.survival_function_.plot(ax=ax) 
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0.25"
 kmf.fit(T[df_company.Age_group == 0.25], df_company.Attrition[df_company.Age_group == 0.25], label = '0.25')
-kmf.plot(ax=ax)
+kmf.survival_function_.plot(ax=ax) 
 
 # Applying KaplanMeierFitter model on Time and Events for the group "0"
 kmf.fit(T[df_company.Age_group == 0], df_company.Attrition[df_company.Age_group == 0], label = '0')
-kmf.plot(ax=ax)
-
-
-
-
+kmf.survival_function_.plot(ax=ax) 
+plt.title('Survival plot for "Attrition" w.r.t "Age_group"') 
 
 
 
