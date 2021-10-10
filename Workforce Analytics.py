@@ -364,5 +364,202 @@ kmf.survival_function_.plot(ax=ax)
 plt.title('Survival plot for "Attrition" w.r.t "Age_group"') 
 
 
+#######################################################
+'''
+We start building the models for classification
+We start by splitting the data into Train and test
+'''
+#######################################################
 
+from sklearn.model_selection import train_test_split
+df = df_company.iloc[:, 1]
+df1 = df_company.drop('Attrition', axis = 1)
+X = df1
+Y = df
+
+# herein we split the data with test size kept as 15%
+x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size = 0.25, random_state = 40)
+print(y_train.value_counts())
+print(y_test.value_counts())
+
+# We start building the models using the following regression models for classifying
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score,confusion_matrix
+
+'''Logistic Regression'''
+log = LogisticRegression() 
+log.fit(x_train, y_train) 
+
+log_acc = accuracy_score(y_test, log.predict(x_test)) 
+print("Train Set Accuracy:"+str(accuracy_score(y_train, log.predict(x_train))*100)) 
+print("Test Set Accuracy:"+str(accuracy_score(y_test, log.predict(x_test))*100)) 
+
+plt.figure(figsize = (6,4)) 
+df_ = pd.DataFrame(confusion_matrix(y_test, log.predict(x_test)), range(2),range(2))
+sns.set(font_scale=1.4)#for label size
+sns.heatmap(df_, annot=True,annot_kws={"size": 16}, fmt='g')
+plt.xlabel('Predicted Class')
+plt.ylabel('Original Class')
+plt.show()
+
+'''Descision Tree'''
+dec = DecisionTreeClassifier()
+dec.fit(x_train, y_train)
+
+dec_acc = accuracy_score(y_test, dec.predict(x_test))
+print("Train test Accuracy:"+str(accuracy_score(y_train, dec.predict(x_train))*100))
+print("Test Set Accuracy:"+str(accuracy_score(y_test, dec.predict(x_test))*100))
+
+plt.figure(figsize = (6,4)) 
+df_ = pd.DataFrame(confusion_matrix(y_test, dec.predict(x_test)), range(2),range(2))
+sns.set(font_scale=1.4)#for label size
+sns.heatmap(df_, annot=True,annot_kws={"size": 16}, fmt='g')
+plt.xlabel('Predicted Class')
+plt.ylabel('Original Class')
+plt.show()
+
+"""**Random Forest**"""
+
+r_for = RandomForestClassifier()
+r_for.fit(x_train,y_train)
+
+r_acc=accuracy_score(y_test,r_for.predict(x_test))
+
+print("Train Set Accuracy:"+str(accuracy_score(y_train,r_for.predict(x_train))*100))
+print("Test Set Accuracy:"+str(accuracy_score(y_test,r_for.predict(x_test))*100))
+
+plt.figure(figsize=(6,4))
+df_ = pd.DataFrame(confusion_matrix(y_test, r_for.predict(x_test)), range(2),range(2))
+sns.set(font_scale=1.4)#for label size
+sns.heatmap(df_, annot=True,annot_kws={"size": 16}, fmt='g')
+plt.xlabel('Predicted Class')
+plt.ylabel('Original Class')
+plt.show()
+
+
+"""**K-NN**
+"""
+
+k_nei = KNeighborsClassifier()
+k_nei.fit(x_train,y_train)
+
+k_acc = accuracy_score(y_test,k_nei.predict(x_test))
+
+print("Train set Accuracy:"+str(accuracy_score(y_train,k_nei.predict(x_train))*100))
+print("Test Set Accuracy:"+str(accuracy_score(y_test,k_nei.predict(x_test))*100))
+
+plt.figure(figsize=(6,4))
+df_ = pd.DataFrame(confusion_matrix(y_test, k_nei.predict(x_test)), range(2),range(2))
+sns.set(font_scale=1.4)#for label size
+sns.heatmap(df_, annot=True,annot_kws={"size": 16}, fmt='g')
+plt.xlabel('Predicted Class')
+plt.ylabel('Original Class')
+plt.show()
+
+"""**SVC**"""
+
+s_vec = SVC()
+s_vec.fit(x_train,y_train)
+
+s_acc = accuracy_score(y_test,s_vec.predict(x_test))
+
+print("Train set Accuracy:"+str(accuracy_score(y_train,s_vec.predict(x_train))*100))
+print("Test Set Accuracy:"+str(accuracy_score(y_test,s_vec.predict(x_test))*100))
+
+plt.figure(figsize=(6,4))
+df_ = pd.DataFrame(confusion_matrix(y_test, s_vec.predict(x_test)), range(2),range(2))
+sns.set(font_scale=1.4)#for label size
+sns.heatmap(df_, annot=True,annot_kws={"size": 16}, fmt='g')
+plt.xlabel('Predicted Class')
+plt.ylabel('Original Class')
+plt.show()
+
+"""**GB**"""
+
+g_clf = GaussianNB()
+g_clf.fit(x_train,y_train)
+
+g_acc = accuracy_score(y_test,g_clf.predict(x_test))
+
+print("Train set Accuracy:"+str(accuracy_score(y_train,g_clf.predict(x_train))*100))
+print("Test Set Accuracy:"+str(accuracy_score(y_test,g_clf.predict(x_test))*100))
+
+plt.figure(figsize=(6,4))
+df_ = pd.DataFrame(confusion_matrix(y_test, g_clf.predict(x_test)), range(2),range(2))
+sns.set(font_scale=1.4)#for label size
+sns.heatmap(df_, annot=True,annot_kws={"size": 16}, fmt='g')
+plt.xlabel('Predicted Class')
+plt.ylabel('Original Class')
+plt.show()
+
+"""**ANN**"""
+
+# from keras.datasets import mnist
+
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import  Dense
+
+from keras.utils import np_utils
+# from keras.layers import Dropout,Flatten
+
+# one hot encoding outputs for both train and test data sets 
+y_train = np_utils.to_categorical(y_train)
+y_test = np_utils.to_categorical(y_test)
+
+# Storing the number of classes into the variable num_of_classes 
+num_of_classes = y_test.shape[1]
+
+
+# Creating a user defined function to return the model for which we are
+# giving the input to train the ANN mode
+def design_mlp():
+    #Initializing the model 
+    model = Sequential()
+    model.add(Dense(50, input_dim = 31, activation = "relu"))
+    model.add(Dense(65, activation = "tanh"))
+    model.add(Dense(50, activation = "relu"))
+    model.add(Dense(45, activation = "tanh"))
+    model.add(Dense(35, activation = "relu"))
+    model.add(Dense(num_of_classes, activation = "sigmoid"))
+    model.compile(loss = "binary_crossentropy", optimizer = "adam", metrics = ["accuracy"])
+    return model
+
+# building a cnn model using train data set and validating on test data set
+model = design_mlp()
+
+# fitting model on train data
+model.fit(x = x_train, y = y_train, batch_size = 50, epochs = 100)
+
+
+# accuracy score on train data 
+eval_score_train = model.evaluate(x_train,y_train,verbose=1)
+print("train_Accuracy: %.3f%%" %(eval_score_train[1]*100)) 
+# accuracy on train data set 
+
+# Evaluating the model on test data  
+eval_score_test = model.evaluate(x_test,y_test,verbose = 1)
+print("test_Accuracy: %.3f%%" %(eval_score_test[1]*100)) 
+ann_acc = eval_score_test[1]
+# accuracy on test data set
+
+models = pd.DataFrame({'Model': ['Logistic','KNN', 'SVC',  'Decision Tree Classifier',
+                       'Random Forest Classifier',  'Gaussian', 'ANN'],
+                       'Accuracy': [ log_acc,k_acc, s_acc, dec_acc, r_acc, g_acc, ann_acc]})
+
+models.sort_values(by = 'Accuracy', ascending = False) 
+
+plt.figure(figsize = (16,3))
+sns.barplot(x = 'Model', y = 'Accuracy', data = models)
+plt.show()
+
+"""We notice here that Logistic Regression is giving us the best accuracy result
+ so ,we will go with the Logistic Regression model"""
 
