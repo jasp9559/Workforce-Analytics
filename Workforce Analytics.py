@@ -517,7 +517,6 @@ y_test = np_utils.to_categorical(y_test)
 # Storing the number of classes into the variable num_of_classes 
 num_of_classes = y_test.shape[1]
 
-
 # Creating a user defined function to return the model for which we are
 # giving the input to train the ANN mode
 def design_mlp():
@@ -538,20 +537,19 @@ model = design_mlp()
 # fitting model on train data
 model.fit(x = x_train, y = y_train, batch_size = 50, epochs = 100)
 
-
 # accuracy score on train data 
-eval_score_train = model.evaluate(x_train,y_train,verbose=1)
+eval_score_train = model.evaluate(x_train, y_train, verbose = 1)
 print("train_Accuracy: %.3f%%" %(eval_score_train[1]*100)) 
 # accuracy on train data set 
 
 # Evaluating the model on test data  
-eval_score_test = model.evaluate(x_test,y_test,verbose = 1)
+eval_score_test = model.evaluate(x_test, y_test, verbose = 1)
 print("test_Accuracy: %.3f%%" %(eval_score_test[1]*100)) 
 ann_acc = eval_score_test[1]
 # accuracy on test data set
 
-models = pd.DataFrame({'Model': ['Logistic','KNN', 'SVC',  'Decision Tree Classifier',
-                       'Random Forest Classifier',  'Gaussian', 'ANN'],
+models = pd.DataFrame({'Model': ['Logistic', 'KNN', 'SVC', 'Decision Tree Classifier',
+                       'Random Forest Classifier', 'Gaussian', 'ANN'],
                        'Accuracy': [ log_acc,k_acc, s_acc, dec_acc, r_acc, g_acc, ann_acc]})
 
 models.sort_values(by = 'Accuracy', ascending = False) 
